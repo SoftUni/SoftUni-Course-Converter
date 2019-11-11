@@ -7,15 +7,16 @@ using System.Reflection;
 
 public class SoftUniPowerPointConverter
 {
-    const string pptTemplateFileName = @"C:\Users\nakov\Desktop\SoftUni-Course-Catalog\Document-Templates\SoftUni-PowerPoint-Template-Nov-2019.pptx";
-    static readonly string pptSourceFileName = Directory.GetCurrentDirectory() + @"\test8.pptx";
+    static readonly string pptTemplateFileName = Path.GetFullPath(Directory.GetCurrentDirectory() + 
+        @"\..\..\..\Document-Templates\SoftUni-PowerPoint-Template-Nov-2019.pptx");
+    static readonly string pptSourceFileName = Directory.GetCurrentDirectory() + @"\test1.pptx";
     static readonly string pptDestFileName = Directory.GetCurrentDirectory() + @"\converted.pptx";
 
     enum Language { EN, BG };
 
     static void Main()
     {
-        ConvertAndFixPresentation(pptSourceFileName, pptDestFileName, pptTemplateFileName, false);
+        ConvertAndFixPresentation(pptSourceFileName, pptDestFileName, pptTemplateFileName, true);
     }
 
     public static void ConvertAndFixPresentation(string pptSourceFileName, 
@@ -26,24 +27,26 @@ public class SoftUniPowerPointConverter
         Application pptApp = new Application();
         try
         {
-            Console.WriteLine("Processing: {0}", pptSourceFileName);
+            Console.WriteLine("Processing input presentation: {0}", pptSourceFileName);
             Presentation pptSource = pptApp.Presentations.Open(
                 pptSourceFileName, WithWindow: pptAppWindowsVisible);
 
-            Console.WriteLine("Loading template: {0}", pptTemplateFileName);
-            Presentation pptTemplate = pptApp.Presentations.Open(
-                pptTemplateFileName, WithWindow: pptAppWindowsVisible);
-            List<string> pptTemplateSlideTitles = ExtractSlideTitles(pptTemplate);
+            Console.WriteLine("Copying the PPTX template '{0}' as output presentation '{1}'", 
+                pptTemplateFileName, pptDestFileName);
+            File.Copy(pptTemplateFileName, pptDestFileName, true);
 
-            RemoveAllSectionsAndSlides(pptTemplate);
+            Console.WriteLine($"Opening the output presentation: {pptDestFileName}...");
+            Presentation pptDestination = pptApp.Presentations.Open(
+                pptDestFileName, WithWindow: pptAppWindowsVisible);
 
-            Presentation pptDestination = pptTemplate;
+            List<string> pptTemplateSlideTitles = ExtractSlideTitles(pptDestination);
+
+            RemoveAllSectionsAndSlides(pptDestination);
 
             CopyDocumentProperties(pptSource, pptDestination);
 
             CopySlidesAndSections(pptSource, pptDestination);
-
-            pptDestination.SaveAs(pptDestFileName);
+            
             pptSource.Close();
 
             Language lang = DetectPresentationLanguage(pptDestination);
@@ -135,24 +138,28 @@ public class SoftUniPowerPointConverter
         Console.WriteLine("Copying all slides and sections from the source presentation...");
 
         // Copy all slides from the source presentation
+        Console.WriteLine("  Copying all slides from the source presentation...");
+        pptSource.Slides.Range().Copy();
+        pptDestination.Slides.Paste();
+
+        // Fix broken source code boxes
+        Console.WriteLine("  Fixing source code boxes...");
+
         int slidesCount = pptSource.Slides.Count;
         for (int slideNum = 1; slideNum <= slidesCount; slideNum++)
         {
-            Slide slide = pptSource.Slides[slideNum];
-            slide.Copy();
-            pptDestination.Slides.Paste();
-
-            // Fix broken source code boxes
             Slide newSlide = pptDestination.Slides[slideNum];
             if (newSlide.CustomLayout.Name == "Source Code Example")
             {
+                Slide oldSlide = pptSource.Slides[slideNum];
                 for (int shapeNum = 1; shapeNum <= newSlide.Shapes.Placeholders.Count; shapeNum++)
                 {
                     Shape newShape = newSlide.Shapes.Placeholders[shapeNum];
-                    if (newShape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue)
+                    if (newShape.HasTextFrame == Microsoft.Office.Core.MsoTriState.msoTrue &&
+                        newShape.TextFrame.HasText == Microsoft.Office.Core.MsoTriState.msoTrue)
                     {
-                        // Copy the paragraph formatting from the original shape
-                        Shape oldShape = slide.Shapes.Placeholders[shapeNum];
+                        // Found [Code Box] -> copy the paragraph formatting from the original shape
+                        Shape oldShape = oldSlide.Shapes.Placeholders[shapeNum];
                         newShape.TextFrame.TextRange.ParagraphFormat.SpaceBefore =
                             Math.Max(0, oldShape.TextFrame.TextRange.ParagraphFormat.SpaceBefore);
                         newShape.TextFrame.TextRange.ParagraphFormat.SpaceAfter =
@@ -162,15 +169,16 @@ public class SoftUniPowerPointConverter
                         newShape.TextFrame.TextRange.LanguageID =
                             Microsoft.Office.Core.MsoLanguageID.msoLanguageIDEnglishUS;
                         // newShape.TextFrame.TextRange.NoProofing =
-                        //    Microsoft.Office.Core.MsoTriState.msoTrue; 
+                        //    Microsoft.Office.Core.MsoTriState.msoTrue;
                     }
                 }
-            }
 
-            Console.WriteLine($"  Imported slide #{slideNum} out of {slidesCount}.");
+                Console.WriteLine($"    Fixed the code box styling at slide #{slideNum}");
+            }
         }
 
         // Copy all sections from the source presentation
+        Console.WriteLine("  Copying all sections from the source presentation...");
         for (int sectNum = 1; sectNum <= pptSource.SectionProperties.Count; sectNum++)
         {
             string sectionName = pptSource.SectionProperties.Name(sectNum);
@@ -351,6 +359,7 @@ public class SoftUniPowerPointConverter
                 else
                     placeholder.Delete();
             }
+            Console.WriteLine($" Fixed slide #{slide.SlideNumber}: {slideTexts.FirstOrDefault()}");
         }
     }
 
@@ -374,7 +383,7 @@ public class SoftUniPowerPointConverter
                 newTitle = titleMappings[newTitle];
             if (newTitle != slideTitles[i])
             {
-                Console.WriteLine($"  Replaced slide title: [{slideTitles[i]}] -> [{newTitle}]");
+                Console.WriteLine($"  Replaced slide #{i} title: [{slideTitles[i]}] -> [{newTitle}]");
                 slideTitleShapes[i].TextFrame.TextRange.Text = newTitle;
             }
         }
@@ -465,7 +474,7 @@ public class SoftUniPowerPointConverter
             Slide slide = presentation.Slides[slideNum];
             if (slide.CustomLayout.Name == "1_Questions Slide")
             {
-                Console.WriteLine($"  Found the [Questions] slide (#{slideNum}) --> replacing it from the template");
+                Console.WriteLine($"  Found the [Questions] slide #{slideNum} --> replacing it from the template");
 
                 presentation.Slides[slideNum].Delete();
                 int questionsSlideIndexInTemplate = pptTemplateSlideTitles.LastIndexOf(questionsSlideTitle);
@@ -487,7 +496,7 @@ public class SoftUniPowerPointConverter
             if (slideTitles[slideNum - 1] == "License" ||
                 slideTitles[slideNum - 1] == "Лиценз")
             {
-                Console.WriteLine($"  Found the [License] slide (#{slideNum}) --> replacing it from the template");
+                Console.WriteLine($"  Found the [License] slide #{slideNum} --> replacing it from the template");
 
                 presentation.Slides[slideNum].Delete();
                 int licenseSlideIndexInTemplate = pptTemplateSlideTitles.LastIndexOf(licenseSlideTitle);
@@ -500,15 +509,25 @@ public class SoftUniPowerPointConverter
     static void FixAboutSoftUniSlide(Presentation presentation, string pptTemplateFileName,
         List<string> pptTemplateSlideTitles, Language lang)
     {
-        Console.WriteLine("Fixing the [About SoftUni] slide...");
+        Console.WriteLine("Fixing the [About] slide...");
 
-        var aboutSlidePossibleTitles = new List<string>() {
-            "Trainings @ Software University (SoftUni)",
-            "Обучения в СофтУни",
-            "About SoftUni Digital",
-            "About SoftUni Creative",
-            "About SoftUni Kids"
-        };
+        List<string> aboutSlidePossibleTitles;
+        if (lang == Language.EN)
+            aboutSlidePossibleTitles = new List<string>() 
+            {
+                "Trainings @ Software University (SoftUni)",
+                "About SoftUni Digital",
+                "About SoftUni Creative",
+                "About SoftUni Kids"
+            };
+        else if (lang == Language.BG)
+            aboutSlidePossibleTitles = new List<string>() 
+            {
+                "Обучения в СофтУни",
+                "Обучения в Софтуерен университет (СофтУни)"
+            };
+        else
+            throw new ArgumentException("Invalid language");
         int aboutSlideIndexInTemplate = -1;
         foreach (var title in aboutSlidePossibleTitles)
             aboutSlideIndexInTemplate = Math.Max(aboutSlideIndexInTemplate,
@@ -519,7 +538,7 @@ public class SoftUniPowerPointConverter
         {
             if (aboutSlidePossibleTitles.Contains(slideTitles[slideNum - 1]))
             {
-                Console.WriteLine($"  Found the [About SoftUni] slide (#{slideNum}) --> replacing it from the template");
+                Console.WriteLine($"  Found the [About] slide #{slideNum} --> replacing it from the template");
                 presentation.Slides[slideNum].Delete();
                 presentation.Slides.InsertFromFile(pptTemplateFileName, slideNum - 1,
                     aboutSlideIndexInTemplate + 1, aboutSlideIndexInTemplate + 1);

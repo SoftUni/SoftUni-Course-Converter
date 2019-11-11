@@ -97,7 +97,7 @@ namespace SoftUni_Course_Converter
                     SoftUniPowerPointConverter.ConvertAndFixPresentation(
                         pptSourceFileName: inputFileName,
                         pptDestFileName: outputFileName,
-                        pptTemplateFileName: (string)this.comboBoxPPTXTemplates.SelectedItem,
+                        pptTemplateFileName: docTemplateDir + @"\" + this.comboBoxPPTXTemplates.SelectedItem,
                         appWindowVisible: !this.checkBoxSilentConversion.Checked);
                 }
                 else if (inputFileInfo.Extension.ToLower() == ".docx")
@@ -105,13 +105,15 @@ namespace SoftUni_Course_Converter
                     SoftUniMSWordConverter.ConvertAndFixDocument(
                         docSourceFileName: inputFileName,
                         docDestFileName: outputFileName,
-                        docTemplateFileName: (string)this.comboBoxPPTXTemplates.SelectedItem,
+                        docTemplateFileName: docTemplateDir + @"\" + (string)this.comboBoxDOCXTemplate.SelectedItem,
                         appWindowVisible: !this.checkBoxSilentConversion.Checked);
                 }
                 else
                 {
                     Console.WriteLine($"Unknown file type: {inputFileInfo.Extension}. Conversion skipped.");
                 }
+                Console.WriteLine("Conversion completed.");
+                Console.WriteLine();
             }
         }
     }
