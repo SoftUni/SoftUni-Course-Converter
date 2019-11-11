@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29503.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftUni-Course-Converter-GUI", "SoftUni-Course-Converter-GUI\SoftUni-Course-Converter-GUI.csproj", "{0FF12209-BCF8-4EE2-A3F9-11A5E3E4F896}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftUni-PowerPoint-Converter", "SoftUni-PowerPoint-Converter\SoftUni-PowerPoint-Converter.csproj", "{AB813519-577B-4CC6-8631-61AFBCC2FB58}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftUni-MS-Word-Converter", "SoftUni-MS-Word-Converter\SoftUni-MS-Word-Converter.csproj", "{8E0C391E-F607-4837-AD8C-EFC3D7C593C1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0FF12209-BCF8-4EE2-A3F9-11A5E3E4F896}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FF12209-BCF8-4EE2-A3F9-11A5E3E4F896}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FF12209-BCF8-4EE2-A3F9-11A5E3E4F896}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FF12209-BCF8-4EE2-A3F9-11A5E3E4F896}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB813519-577B-4CC6-8631-61AFBCC2FB58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB813519-577B-4CC6-8631-61AFBCC2FB58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB813519-577B-4CC6-8631-61AFBCC2FB58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB813519-577B-4CC6-8631-61AFBCC2FB58}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E0C391E-F607-4837-AD8C-EFC3D7C593C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E0C391E-F607-4837-AD8C-EFC3D7C593C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E0C391E-F607-4837-AD8C-EFC3D7C593C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E0C391E-F607-4837-AD8C-EFC3D7C593C1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {35EA17D5-22DB-42EB-8081-4A6E9308C1D4}
+	EndGlobalSection
+EndGlobal
