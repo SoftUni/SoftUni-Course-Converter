@@ -22,7 +22,12 @@ namespace SoftUni_Course_Converter
 
         public override void WriteLine(string format, params object[] args)
         {
-            this.textBox.AppendText(string.Format(format, args) + "\r\n");
+            this.WriteLine(string.Format(format, args));
+        }
+
+        public override void WriteLine()
+        {
+            this.WriteLine("");
         }
     }
 }

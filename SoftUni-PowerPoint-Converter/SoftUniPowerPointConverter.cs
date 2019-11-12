@@ -193,10 +193,14 @@ public class SoftUniPowerPointConverter
         Console.WriteLine("Copying document properties (metadata)...");
 
         object srcDocProperties = pptSource.BuiltInDocumentProperties;
-        string title = GetObjectProperty(srcDocProperties, "Title")?.ToString();
-        string subject = GetObjectProperty(srcDocProperties, "Subject")?.ToString();
-        string category = GetObjectProperty(srcDocProperties, "Category")?.ToString();
-        string keywords = GetObjectProperty(srcDocProperties, "Keywords")?.ToString();
+        string title = GetObjectProperty(srcDocProperties, "Title")
+            ?.ToString()?.Replace(',', ';');
+        string subject = GetObjectProperty(srcDocProperties, "Subject")
+            ?.ToString()?.Replace(',', ';');
+        string category = GetObjectProperty(srcDocProperties, "Category")
+            ?.ToString()?.Replace(',', ';');
+        string keywords = GetObjectProperty(srcDocProperties, "Keywords")
+            ?.ToString()?.Replace(',', ';');
 
         object destDocProperties = pptDestination.BuiltInDocumentProperties;
         if (!string.IsNullOrWhiteSpace(title))
