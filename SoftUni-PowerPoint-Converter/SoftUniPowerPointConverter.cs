@@ -18,12 +18,15 @@ public class SoftUniPowerPointConverter
 
     static void Main()
     {
-        ConvertAndFixPresentation(pptSourceFileName, pptDestFileName, pptTemplateFileName, true);
+        ConvertAndFixPresentation(pptSourceFileName, pptDestFileName, pptTemplateFileName, false);
     }
 
     public static void ConvertAndFixPresentation(string pptSourceFileName, 
         string pptDestFileName, string pptTemplateFileName, bool appWindowVisible)
     {
+        if (KillAllProcesses("POWERPNT"))
+            Console.WriteLine("MS PowerPoint (POWERPNT.EXE) is still running -> process terminated.");
+
         MsoTriState pptAppWindowsVisible = appWindowVisible ?
             MsoTriState.msoTrue : MsoTriState.msoFalse;
         Application pptApp = new Application();
@@ -80,7 +83,17 @@ public class SoftUniPowerPointConverter
         finally
         {
             if (!appWindowVisible)
+            {
+                // Quit the MS Word application
                 pptApp.Quit();
+
+                // Release any associated .NET proxies for the COM objects, which are not in use
+                // Intentionally we call the garbace collector twice
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
         }
     }
 

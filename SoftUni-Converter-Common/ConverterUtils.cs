@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace SoftUniConverterCommon
@@ -92,6 +93,25 @@ namespace SoftUniConverterCommon
             if (str.Length > maxLength)
                 str = str.Substring(0, maxLength) + "...";
             return str;
+        }
+
+        public static bool KillAllProcesses(string processName)
+        {
+            Process[] processes = Process.GetProcessesByName(processName);
+            int killedProcessesCount = 0;
+            foreach (Process process in processes)
+            {
+                try
+                {
+                    process.Kill();
+                    killedProcessesCount++;
+                }
+                catch
+                {
+                    // Ignore the exception: the process cannot be killed for some reason
+                }
+            }
+            return (killedProcessesCount > 0);
         }
     }
 }

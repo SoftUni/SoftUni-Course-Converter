@@ -97,38 +97,47 @@ namespace SoftUni_Course_Converter
                 string outputFileName = inputFileName.Replace(inputBaseFolder, outputBaseFolder);
                 string outputFullFolder = new FileInfo(outputFileName).DirectoryName;
                 Directory.CreateDirectory(outputFullFolder);
-                if (inputFileInfo.Extension.ToLower() == ".pptx")
+                try
                 {
-                    string templateFileName = Path.GetFullPath(docTemplateDir + @"\" +
-                        (string)this.comboBoxPPTXTemplates.SelectedItem);
-                    await Task.Run(() => 
+                    if (inputFileInfo.Extension.ToLower() == ".pptx")
                     {
-                        SoftUniPowerPointConverter.ConvertAndFixPresentation(
-                            pptSourceFileName: inputFileName,
-                            pptDestFileName: outputFileName,
-                            pptTemplateFileName: templateFileName,
-                            appWindowVisible: !silentConversion);
-                    });
-                }
-                else if (inputFileInfo.Extension.ToLower() == ".docx")
-                {
-                    string templateFileName = Path.GetFullPath(docTemplateDir + @"\" + 
-                        (string)this.comboBoxDOCXTemplates.SelectedItem);
-                    await Task.Run(() =>
+                        string templateFileName = Path.GetFullPath(docTemplateDir + @"\" +
+                            (string)this.comboBoxPPTXTemplates.SelectedItem);
+                        await Task.Run(() =>
+                        {
+                            SoftUniPowerPointConverter.ConvertAndFixPresentation(
+                                pptSourceFileName: inputFileName,
+                                pptDestFileName: outputFileName,
+                                pptTemplateFileName: templateFileName,
+                                appWindowVisible: !silentConversion);
+                        });
+                    }
+                    else if (inputFileInfo.Extension.ToLower() == ".docx")
                     {
-                        SoftUniMSWordConverter.ConvertAndFixDocument(
-                            docSourceFileName: inputFileName,
-                            docDestFileName: outputFileName,
-                            docTemplateFileName: templateFileName,
-                            appWindowVisible: !silentConversion);
-                    });
+                        string templateFileName = Path.GetFullPath(docTemplateDir + @"\" +
+                            (string)this.comboBoxDOCXTemplates.SelectedItem);
+                        await Task.Run(() =>
+                        {
+                            SoftUniMSWordConverter.ConvertAndFixDocument(
+                                docSourceFileName: inputFileName,
+                                docDestFileName: outputFileName,
+                                docTemplateFileName: templateFileName,
+                                appWindowVisible: !silentConversion);
+                        });
+                    }
+                    else
+                    {
+                        File.Copy(inputFileName, outputFileName, true);
+                        Console.WriteLine($"Unknown file type: {inputFileInfo.Name}. Stored to the output folder.");
+                    }
+                    Console.WriteLine($"Conversion of file {inputFileInfo.Name} completed.");
                 }
-                else
+                catch (Exception ex)
                 {
-                    File.Copy(inputFileName, outputFileName, true);
-                    Console.WriteLine($"Unknown file type: {inputFileInfo.Name}. Stored to the output folder.");
+                    Console.WriteLine($"Error converting file {inputFileInfo.Name}: {ex.Message}");
+                    Console.WriteLine(ex.StackTrace);
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-                Console.WriteLine($"Conversion of file {inputFileInfo.Name} completed.");
                 Console.WriteLine();
             }
 

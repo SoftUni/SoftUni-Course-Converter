@@ -11,7 +11,7 @@ public class SoftUniMSWordConverter
     static readonly string docTemplateFileName = Path.GetFullPath(Directory.GetCurrentDirectory() + 
         @"\..\..\..\Document-Templates\SoftUni-Creative-Document-Template-Nov-2019.docx");
     static readonly string docSourceFileName = Path.GetFullPath(Directory.GetCurrentDirectory() +
-        @"\..\..\..\Sample-Docs\test1.docx");
+        @"\..\..\..\Sample-Docs\test3.docx");
     static readonly string docDestFileName = Directory.GetCurrentDirectory() + @"\converted.docx";
 
     static void Main()
@@ -22,6 +22,9 @@ public class SoftUniMSWordConverter
     public static void ConvertAndFixDocument(string docSourceFileName,
         string docDestFileName, string docTemplateFileName, bool appWindowVisible)
     {
+        if (KillAllProcesses("WINWORD"))
+            Console.WriteLine("MS Word (WINWORD.EXE) is still running -> process terminated.");
+
         Application wordApp = new Application();
         wordApp.Visible = appWindowVisible; // Show / hide MS Word app window
         wordApp.ScreenUpdating = appWindowVisible; // Enable / disable screen updates after each change
@@ -56,7 +59,17 @@ public class SoftUniMSWordConverter
         finally
         {
             if (!appWindowVisible)
+            {
+                // Quit the MS Word application
                 wordApp.Quit(false);
+
+                // Release any associated .NET proxies for the COM objects, which are not in use
+                // Intentionally we call the garbace collector twice
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
         }
     }
 
