@@ -2,6 +2,7 @@
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SoftUni_Course_Converter
@@ -20,16 +21,15 @@ namespace SoftUni_Course_Converter
         {
             this.openFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
             this.openFileDialog.Filter =
-                "PowerPoint Presentations (*.pptx)|*.pptx" + "|" +
-                "MS Word Documents (*.docx)|*.docx";
+                "Presentations and Documents (*.pptx; *.docx)|*.pptx;*.docx";
 
             this.folderBrowserDialog.SelectedPath = Directory.GetCurrentDirectory();
 
             this.comboBoxPPTXTemplates.Items.AddRange(FindDocTemplates("*.pptx"));
             this.comboBoxPPTXTemplates.SelectedIndex = this.comboBoxPPTXTemplates.Items.Count - 1;
 
-            this.comboBoxDOCXTemplate.Items.AddRange(FindDocTemplates("*.docx"));
-            this.comboBoxDOCXTemplate.SelectedIndex = this.comboBoxDOCXTemplate.Items.Count - 1;
+            this.comboBoxDOCXTemplates.Items.AddRange(FindDocTemplates("*.docx"));
+            this.comboBoxDOCXTemplates.SelectedIndex = this.comboBoxDOCXTemplates.Items.Count - 1;
 
             this.textBoxOutputFolder.Text = Path.GetFullPath(
                 Directory.GetCurrentDirectory() + @"\..\..\..\output");
@@ -66,27 +66,32 @@ namespace SoftUni_Course_Converter
                 this.textBoxFolderToConvert.Text = this.folderBrowserDialog.SelectedPath;
                 this.listBoxFilesToConvert.Items.Clear();
                 string[] filesToConvert = Directory.GetFiles(
-                    this.folderBrowserDialog.SelectedPath, "*.*", SearchOption.AllDirectories)
-                    .Where(f => f.EndsWith(".pptx") || f.EndsWith(".docx")).ToArray();
+                    this.folderBrowserDialog.SelectedPath, "*.*", SearchOption.AllDirectories).ToArray();
                 this.listBoxFilesToConvert.Items.Clear();
                 this.listBoxFilesToConvert.Items.AddRange(filesToConvert);
             }
         }
 
-        private void buttonConvert_Click(object sender, EventArgs e)
+        private async void buttonConvert_Click(object sender, EventArgs e)
         {
+            this.textBoxLogs.Clear();
+
             int filesCount = this.listBoxFilesToConvert.Items.Count;
             if (filesCount == 0)
             {
-                Console.WriteLine("Error: no file is selected for conversion.");
+                Console.WriteLine("Error: no files / folders are selected for conversion.");
                 return;
             }
+
+            this.buttonConvert.Enabled = false;
 
             for (int fileNum = 0; fileNum < filesCount; fileNum++)
             {
                 string inputFileName = (string)this.listBoxFilesToConvert.Items[fileNum];
+                this.listBoxFilesToConvert.SelectedIndex = fileNum;
                 FileInfo inputFileInfo = new FileInfo(inputFileName);
                 Console.WriteLine($"Converting file {inputFileInfo.Name} ({fileNum + 1} of {filesCount})...");
+                bool silentConversion = this.checkBoxSilentConversion.Checked;
                 string inputBaseFolder = this.textBoxFolderToConvert.Text;
                 string outputBaseFolder = this.textBoxOutputFolder.Text;
                 string outputFileName = inputFileName.Replace(inputBaseFolder, outputBaseFolder);
@@ -94,27 +99,42 @@ namespace SoftUni_Course_Converter
                 Directory.CreateDirectory(outputFullFolder);
                 if (inputFileInfo.Extension.ToLower() == ".pptx")
                 {
-                    SoftUniPowerPointConverter.ConvertAndFixPresentation(
-                        pptSourceFileName: inputFileName,
-                        pptDestFileName: outputFileName,
-                        pptTemplateFileName: docTemplateDir + @"\" + this.comboBoxPPTXTemplates.SelectedItem,
-                        appWindowVisible: !this.checkBoxSilentConversion.Checked);
+                    string templateFileName = Path.GetFullPath(docTemplateDir + @"\" +
+                        (string)this.comboBoxPPTXTemplates.SelectedItem);
+                    await Task.Run(() => 
+                    {
+                        SoftUniPowerPointConverter.ConvertAndFixPresentation(
+                            pptSourceFileName: inputFileName,
+                            pptDestFileName: outputFileName,
+                            pptTemplateFileName: templateFileName,
+                            appWindowVisible: !silentConversion);
+                    });
                 }
                 else if (inputFileInfo.Extension.ToLower() == ".docx")
                 {
-                    SoftUniMSWordConverter.ConvertAndFixDocument(
-                        docSourceFileName: inputFileName,
-                        docDestFileName: outputFileName,
-                        docTemplateFileName: docTemplateDir + @"\" + (string)this.comboBoxDOCXTemplate.SelectedItem,
-                        appWindowVisible: !this.checkBoxSilentConversion.Checked);
+                    string templateFileName = Path.GetFullPath(docTemplateDir + @"\" + 
+                        (string)this.comboBoxDOCXTemplates.SelectedItem);
+                    await Task.Run(() =>
+                    {
+                        SoftUniMSWordConverter.ConvertAndFixDocument(
+                            docSourceFileName: inputFileName,
+                            docDestFileName: outputFileName,
+                            docTemplateFileName: templateFileName,
+                            appWindowVisible: !silentConversion);
+                    });
                 }
                 else
                 {
-                    Console.WriteLine($"Unknown file type: {inputFileInfo.Extension}. Conversion skipped.");
+                    File.Copy(inputFileName, outputFileName, true);
+                    Console.WriteLine($"Unknown file type: {inputFileInfo.Name}. Stored to the output folder.");
                 }
-                Console.WriteLine("Conversion completed.");
+                Console.WriteLine($"Conversion of file {inputFileInfo.Name} completed.");
                 Console.WriteLine();
             }
+
+            // Conversion complated
+            Console.WriteLine("All files converted successfully.");
+            this.buttonConvert.Enabled = true;
         }
     }
 }

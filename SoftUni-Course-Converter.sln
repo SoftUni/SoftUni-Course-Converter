@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftUni-PowerPoint-Converte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftUni-MS-Word-Converter", "SoftUni-MS-Word-Converter\SoftUni-MS-Word-Converter.csproj", "{8E0C391E-F607-4837-AD8C-EFC3D7C593C1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoftUni-Converter-Common", "SoftUni-Converter-Common\SoftUni-Converter-Common.csproj", "{31EBFE70-85F8-4488-8F8A-74ADFDEDFB1A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{8E0C391E-F607-4837-AD8C-EFC3D7C593C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8E0C391E-F607-4837-AD8C-EFC3D7C593C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8E0C391E-F607-4837-AD8C-EFC3D7C593C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31EBFE70-85F8-4488-8F8A-74ADFDEDFB1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31EBFE70-85F8-4488-8F8A-74ADFDEDFB1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31EBFE70-85F8-4488-8F8A-74ADFDEDFB1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31EBFE70-85F8-4488-8F8A-74ADFDEDFB1A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

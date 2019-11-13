@@ -47,7 +47,7 @@
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.comboBoxPPTXTemplates = new System.Windows.Forms.ComboBox();
-            this.comboBoxDOCXTemplate = new System.Windows.Forms.ComboBox();
+            this.comboBoxDOCXTemplates = new System.Windows.Forms.ComboBox();
             this.listBoxFilesToConvert = new System.Windows.Forms.ListBox();
             this.textBoxLogs = new System.Windows.Forms.TextBox();
             this.textBoxOutputFolder = new System.Windows.Forms.TextBox();
@@ -259,15 +259,15 @@
             // 
             // comboBoxDOCXTemplate
             // 
-            this.comboBoxDOCXTemplate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.comboBoxDOCXTemplates.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.comboBoxDOCXTemplate.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBoxDOCXTemplate.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.comboBoxDOCXTemplate.FormattingEnabled = true;
-            this.comboBoxDOCXTemplate.Location = new System.Drawing.Point(221, 194);
-            this.comboBoxDOCXTemplate.Name = "comboBoxDOCXTemplate";
-            this.comboBoxDOCXTemplate.Size = new System.Drawing.Size(960, 28);
-            this.comboBoxDOCXTemplate.TabIndex = 7;
+            this.comboBoxDOCXTemplates.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxDOCXTemplates.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.comboBoxDOCXTemplates.FormattingEnabled = true;
+            this.comboBoxDOCXTemplates.Location = new System.Drawing.Point(221, 194);
+            this.comboBoxDOCXTemplates.Name = "comboBoxDOCXTemplate";
+            this.comboBoxDOCXTemplates.Size = new System.Drawing.Size(960, 28);
+            this.comboBoxDOCXTemplates.TabIndex = 7;
             // 
             // listBoxFilesToConvert
             // 
@@ -333,7 +333,7 @@
             this.Controls.Add(label1);
             this.Controls.Add(this.listBoxFilesToConvert);
             this.Controls.Add(labelFilesToConvert);
-            this.Controls.Add(this.comboBoxDOCXTemplate);
+            this.Controls.Add(this.comboBoxDOCXTemplates);
             this.Controls.Add(labelChooseDOCXTemplate);
             this.Controls.Add(this.comboBoxPPTXTemplates);
             this.Controls.Add(labelChoosePPTXTemplate);
@@ -367,7 +367,7 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.ComboBox comboBoxPPTXTemplates;
-        private System.Windows.Forms.ComboBox comboBoxDOCXTemplate;
+        private System.Windows.Forms.ComboBox comboBoxDOCXTemplates;
         private System.Windows.Forms.ListBox listBoxFilesToConvert;
         private System.Windows.Forms.TextBox textBoxLogs;
         private System.Windows.Forms.TextBox textBoxOutputFolder;

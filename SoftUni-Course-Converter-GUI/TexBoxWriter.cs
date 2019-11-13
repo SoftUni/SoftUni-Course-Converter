@@ -15,19 +15,32 @@ namespace SoftUni_Course_Converter
 
         public override Encoding Encoding => Encoding.UTF8;
 
-        public override void WriteLine(string text)
+        public override void Write(string text)
         {
-            this.textBox.AppendText(text + "\r\n");
+            // Update the UI through the UI thread (thread safe)
+            this.textBox.Invoke((MethodInvoker)delegate {
+                this.textBox.AppendText(text);
+            });
         }
 
-        public override void WriteLine(string format, params object[] args)
+        public override void Write(char ch)
         {
-            this.WriteLine(string.Format(format, args));
+            this.Write("" + ch);
         }
 
         public override void WriteLine()
         {
             this.WriteLine("");
+        }
+
+        public override void WriteLine(string text)
+        {
+            this.Write(text + "\r\n");
+        }
+
+        public override void WriteLine(string format, params object[] args)
+        {
+            this.WriteLine(string.Format(format, args));
         }
     }
 }
