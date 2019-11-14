@@ -65,8 +65,12 @@ namespace SoftUni_Course_Converter
             {
                 this.textBoxFolderToConvert.Text = this.folderBrowserDialog.SelectedPath;
                 this.listBoxFilesToConvert.Items.Clear();
-                string[] filesToConvert = Directory.GetFiles(
-                    this.folderBrowserDialog.SelectedPath, "*.*", SearchOption.AllDirectories).ToArray();
+                var directory = new DirectoryInfo(this.folderBrowserDialog.SelectedPath);
+                FileInfo[] allFiles = directory.GetFiles("*.*", SearchOption.AllDirectories);
+                string[] filesToConvert = allFiles
+                    .Where(f => !f.Name.StartsWith("~$"))
+                    .Select(f => f.FullName)
+                    .ToArray();
                 this.listBoxFilesToConvert.Items.Clear();
                 this.listBoxFilesToConvert.Items.AddRange(filesToConvert);
             }
