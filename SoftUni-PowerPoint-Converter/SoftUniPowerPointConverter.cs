@@ -7,6 +7,7 @@ using Microsoft.Office.Core;
 using SoftUniConverterCommon;
 using static SoftUniConverterCommon.ConverterUtils;
 using Shape = Microsoft.Office.Interop.PowerPoint.Shape;
+using Shapes = Microsoft.Office.Interop.PowerPoint.Shapes;
 
 public class SoftUniPowerPointConverter
 {
@@ -18,7 +19,7 @@ public class SoftUniPowerPointConverter
 
     static void Main()
     {
-        ConvertAndFixPresentation(pptSourceFileName, pptDestFileName, pptTemplateFileName, false);
+        ConvertAndFixPresentation(pptSourceFileName, pptDestFileName, pptTemplateFileName, true);
     }
 
     public static void ConvertAndFixPresentation(string pptSourceFileName, 
@@ -243,23 +244,35 @@ public class SoftUniPowerPointConverter
         var layoutMappings = new Dictionary<string, string> {
             { "Presentation Title Slide", "Presentation Title Slide" },
             { "Section Title Slide", "Section Title Slide" },
+            { "Section Slide", "Section Title Slide" },
+            { "Title Slide", "Section Title Slide" },
+            { "Заглавен слайд", "Section Title Slide" },
+            { "Live Exercise Slide", "Section Title Slide" },
+            { "1_Title Slide", "Section Title Slide" },
+            { "2_Title Slide", "Section Title Slide" },
+            { "1_Background Slide", "Section Title Slide" },
             { "Important Concept", "Important Concept" },
+            { "1_Important Concept", "Important Concept" },
+            { "2_Important Concept", "Important Concept" },
             { "Important Example", "Important Example" },
+            { "1_Important Example", "Important Example" },
             { "Table of Content", "Table of Contents" },
             { "Comparison Slide", "Comparison Slide" },
             { "Title and Content", "Title and Content" },
+            { "1_Title and Content", "Title and Content" },
+            { "2_Title and Content", "Title and Content" },
+            { "3_Title and Content", "Title and Content" },
+            { "4_Title and Content", "Title and Content" },
+            { "Заглавие и съдържание", "Title and Content" },
             { "Source Code Example", "Source Code Example" },
             { "Image and Content", "Image and Content" },
             { "Questions Slide", "Questions Slide" },
             { "Blank Slide", "Blank Slide" },
-            { "About Slide", "About Slide" },
-            { "Заглавие и съдържание", "Title and Content" },
-            { "Section Slide", "Section Title Slide" },
-            { "Title Slide", "Section Title Slide" },
-            { "Заглавен слайд", "Section Title Slide" },
             { "Block scheme", "Blank Slide" },
-            { "Comparison Slide Dark", "Comparison Slide" },
+            { "1_Blank Slide", "Blank Slide" },
+            { "About Slide", "About Slide" },
             { "Last", "About Slide" },
+            { "Comparison Slide Dark", "Comparison Slide" },
             { "", "" },
         };
         const string defaultLayoutName = "Title and Content";
