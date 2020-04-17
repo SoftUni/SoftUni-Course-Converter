@@ -7,7 +7,6 @@ using Microsoft.Office.Core;
 using SoftUniConverterCommon;
 using static SoftUniConverterCommon.ConverterUtils;
 using Shape = Microsoft.Office.Interop.PowerPoint.Shape;
-using Shapes = Microsoft.Office.Interop.PowerPoint.Shapes;
 
 public class SoftUniPowerPointConverter
 {
