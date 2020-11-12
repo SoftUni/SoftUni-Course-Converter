@@ -246,34 +246,34 @@ public class SoftUniPowerPointConverter
             { "Section Slide", "Section Title Slide" },
             { "Title Slide", "Section Title Slide" },
             { "Заглавен слайд", "Section Title Slide" },
+            { "Demo Slide", "Demo Slide" },
             { "Live Exercise Slide", "Section Title Slide" },
-            { "1_Title Slide", "Section Title Slide" },
-            { "2_Title Slide", "Section Title Slide" },
-            { "1_Background Slide", "Section Title Slide" },
+            { "Background Slide", "Section Title Slide" },
             { "Important Concept", "Important Concept" },
-            { "1_Important Concept", "Important Concept" },
-            { "2_Important Concept", "Important Concept" },
             { "Important Example", "Important Example" },
-            { "1_Important Example", "Important Example" },
             { "Table of Content", "Table of Contents" },
+            { "Table of Contents", "Table of Contents" },
             { "Comparison Slide", "Comparison Slide" },
             { "Title and Content", "Title and Content" },
-            { "1_Title and Content", "Title and Content" },
-            { "2_Title and Content", "Title and Content" },
-            { "3_Title and Content", "Title and Content" },
-            { "4_Title and Content", "Title and Content" },
             { "Заглавие и съдържание", "Title and Content" },
             { "Source Code Example", "Source Code Example" },
             { "Image and Content", "Image and Content" },
             { "Questions Slide", "Questions Slide" },
             { "Blank Slide", "Blank Slide" },
             { "Block scheme", "Blank Slide" },
-            { "1_Blank Slide", "Blank Slide" },
             { "About Slide", "About Slide" },
             { "Last", "About Slide" },
             { "Comparison Slide Dark", "Comparison Slide" },
             { "", "" },
         };
+        // Add layout names like "1_Section Title Slide", "2_Demo Slide"
+        foreach (string layoutName in layoutMappings.Keys.ToArray())
+        {
+            var mappedName = layoutMappings[layoutName];
+            for (int i = 1; i < 99; i++)
+                layoutMappings["" + i + "_" + layoutName] = mappedName;
+        }
+
         const string defaultLayoutName = "Title and Content";
 
         var customLayoutsByName = new Dictionary<string, CustomLayout>();
@@ -293,7 +293,15 @@ public class SoftUniPowerPointConverter
             {
                 Console.WriteLine($"  Replacing invalid slide layout \"{oldLayoutName}\" on slide #{slideNum} with \"{newLayoutName}\"");
                 // Replace the old layout with the new layout
-                slide.CustomLayout = customLayoutsByName[newLayoutName];
+                if (customLayoutsByName.ContainsKey(newLayoutName))
+                {
+                    slide.CustomLayout = customLayoutsByName[newLayoutName];
+                }
+                else
+                {
+                    slide.CustomLayout = customLayoutsByName[defaultLayoutName];
+                    Console.WriteLine($"  Cannot find layout [{newLayoutName}] --> using [{defaultLayoutName}] instead");
+                }
                 layoutsForDeleting.Add(oldLayoutName);
             }
         }
@@ -433,12 +441,22 @@ public class SoftUniPowerPointConverter
         List<string> pptTemplateSlideTitles, Language lang)
     {
         Console.WriteLine("Fixing the [Questions] slide...");
-        string questionsSlideTitle =
-            (lang == Language.EN) ? "Questions?" : "Въпроси?";
-        int questionsSlideIndexInTemplate = 
-            pptTemplateSlideTitles.LastIndexOf(questionsSlideTitle);
+
+        int questionsSlideIndexInTemplate =
+            pptTemplateSlideTitles.LastIndexOf("Questions?");
+        if (lang == Language.BG || questionsSlideIndexInTemplate == -1) 
+        {
+            int questionsSlideIndexBG = pptTemplateSlideTitles.LastIndexOf("Въпроси?");
+            if (questionsSlideIndexBG != -1)
+                questionsSlideIndexInTemplate = questionsSlideIndexBG;
+        }
+
         if (questionsSlideIndexInTemplate == -1)
-            questionsSlideIndexInTemplate = pptTemplateSlideTitles.LastIndexOf("Questions?");
+        {
+            Console.WriteLine($"  Cannot find the [Questions] slide --> operation skipped");
+            return;
+        }
+
         for (int slideNum = 1; slideNum <= presentation.Slides.Count; slideNum++)
         {
             Slide slide = presentation.Slides[slideNum];
@@ -458,11 +476,20 @@ public class SoftUniPowerPointConverter
         List<string> pptTemplateSlideTitles, Language lang)
     {
         Console.WriteLine("Fixing the [License] slide...");
-        string licenseSlideTitle =
-            (lang == Language.EN) ? "License" : "Лиценз";
-        int licenseSlideIndexInTemplate = pptTemplateSlideTitles.LastIndexOf(licenseSlideTitle);
+
+        int licenseSlideIndexInTemplate = pptTemplateSlideTitles.LastIndexOf("License");
+        if (lang == Language.BG || licenseSlideIndexInTemplate == -1)
+        {
+            int licenseSlideIndexBG = pptTemplateSlideTitles.LastIndexOf("Лиценз");
+            if (licenseSlideIndexBG != -1)
+                licenseSlideIndexInTemplate = licenseSlideIndexBG;
+        }
+
         if (licenseSlideIndexInTemplate == -1)
-            licenseSlideIndexInTemplate = pptTemplateSlideTitles.LastIndexOf("License");
+        {
+            Console.WriteLine($"  Cannot find the [License] slide --> operation skipped");
+            return;
+        }
 
         var slideTitles = ExtractSlideTitles(presentation);
         for (int slideNum = 1; slideNum <= presentation.Slides.Count; slideNum++)
@@ -508,6 +535,12 @@ public class SoftUniPowerPointConverter
                 aboutSlideReplacementIndexInTemplate = Math.Max(
                     aboutSlideReplacementIndexInTemplate,
                     pptTemplateSlideTitles.LastIndexOf(title.Item1));
+
+        if (aboutSlideReplacementIndexInTemplate == -1)
+        {
+            Console.WriteLine($"  Cannot find the [About] slide --> operation skipped");
+            return;
+        }
 
         // Replace the [About] slides from the presentation
         // with the [About] slide from the template
