@@ -10,3 +10,4 @@ Converts **PPTX** presentations and **DOCX** documents from the old SoftUni temp
 
 ## Screenshots
 
+![image](https://user-images.githubusercontent.com/1689586/100597730-758e1c00-3306-11eb-81da-c6b447fc2e1b.png)
