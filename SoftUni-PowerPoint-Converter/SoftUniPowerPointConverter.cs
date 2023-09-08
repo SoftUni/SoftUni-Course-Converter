@@ -84,7 +84,7 @@ public class SoftUniPowerPointConverter
         {
             if (!appWindowVisible)
             {
-                // Quit the MS Word application
+                // Quit the MS PowerPoint application
                 pptApp.Quit();
 
                 // Release any associated .NET proxies for the COM objects, which are not in use
@@ -357,6 +357,7 @@ public class SoftUniPowerPointConverter
         {
             // Collect the texts from the slide (expecting title and subtitle)
             List<string> slideTexts = new List<string>();
+            List<Shape> shapesForDelete = new List<Shape>();
             foreach (Shape shape in slide.Shapes)
             {
                 try
@@ -368,7 +369,7 @@ public class SoftUniPowerPointConverter
                         && shape.TextFrame.TextRange.Text != "")
                     {
                         slideTexts.Add(shape.TextFrame.TextRange.Text);
-                        shape.Delete();
+                        shapesForDelete.Add(shape);
                     }
                 }
                 catch (Exception)
@@ -377,8 +378,14 @@ public class SoftUniPowerPointConverter
                 }
             }
 
-            // Put the slide texts into the placeholders (and delete the empty placeholders)
-            for (int i = 0; i < slide.Shapes.Placeholders.Count; i++)
+            // Delete all shapes, holding the slide texts
+            foreach (var shape in shapesForDelete)
+            {
+				shape.Delete();
+			}
+
+			// Put the slide texts into the placeholders (and delete the empty placeholders)
+			for (int i = 0; i < slide.Shapes.Placeholders.Count; i++)
             {
                 Shape placeholder = slide.Shapes.Placeholders[i+1];
                 if (i < slideTexts.Count)
