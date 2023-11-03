@@ -7,6 +7,7 @@ using Microsoft.Office.Core;
 using SoftUniConverterCommon;
 using static SoftUniConverterCommon.ConverterUtils;
 using Shape = Microsoft.Office.Interop.PowerPoint.Shape;
+using System.Security.Policy;
 
 public class SoftUniPowerPointConverter
 {
@@ -349,37 +350,37 @@ public class SoftUniPowerPointConverter
 
     static void FixSectionTitleSlides(Presentation presentation)
     {
-        Console.WriteLine("Fixing broken section title slides...");
+        Console.WriteLine("Fixing section title slides...");
 
         var sectionTitleSlides = presentation.Slides.Cast<Slide>()
             .Where(slide => slide.CustomLayout.Name == "Section Title Slide");
-        foreach (Slide slide in sectionTitleSlides)
-        {
-            // Collect the texts from the slide (expecting title and subtitle)
-            List<string> slideTexts = new List<string>();
-            List<Shape> shapesForDelete = new List<Shape>();
-            foreach (Shape shape in slide.Shapes)
-            {
-                try
-                {
-                    if (shape.HasTextFrame == MsoTriState.msoTrue
-                        && (shape.PlaceholderFormat.Type == PpPlaceholderType.ppPlaceholderTitle
-                            || shape.PlaceholderFormat.Type == PpPlaceholderType.ppPlaceholderSubtitle
-                            || shape.PlaceholderFormat.Type == PpPlaceholderType.ppPlaceholderBody)
-                        && shape.TextFrame.TextRange.Text != "")
-                    {
-                        slideTexts.Add(shape.TextFrame.TextRange.Text);
-                        shapesForDelete.Add(shape);
-                    }
-                }
-                catch (Exception)
-                {
-                    // Silently ignore --> the shape is not a placeholder
-                }
-            }
 
-            // Delete all shapes, holding the slide texts
-            foreach (var shape in shapesForDelete)
+		foreach (Slide slide in sectionTitleSlides)
+        {
+            // Collect non-empty text shapes from the slide (starting from title and subtitle)
+            List<Shape> textShapes = new List<Shape>();
+
+            var titleShapes = FindNonEmptyTextShapesByType(slide, PpPlaceholderType.ppPlaceholderTitle);
+            textShapes.AddRange(titleShapes);
+
+			var titleCenterShapes = FindNonEmptyTextShapesByType(slide, PpPlaceholderType.ppPlaceholderCenterTitle);
+			textShapes.AddRange(titleCenterShapes);
+
+			var subtitleShapes = FindNonEmptyTextShapesByType(slide, PpPlaceholderType.ppPlaceholderSubtitle);
+			textShapes.AddRange(subtitleShapes);
+
+			var bodyShapes = FindNonEmptyTextShapesByType(slide, PpPlaceholderType.ppPlaceholderBody);
+			textShapes.AddRange(bodyShapes);
+
+			// Extract the texts from all text shapes
+            List<string> slideTexts = new List<string>();
+            foreach (Shape shape in textShapes)
+            {
+				slideTexts.Add(shape.TextFrame.TextRange.Text);
+			}
+
+			// Delete all collected text shapes --> shapes from the placeholders will appear instead
+			foreach (var shape in textShapes)
             {
 				shape.Delete();
 			}
@@ -393,11 +394,35 @@ public class SoftUniPowerPointConverter
                 else
                     placeholder.Delete();
             }
-            Console.WriteLine($" Fixed slide #{slide.SlideNumber}: {slideTexts.FirstOrDefault()}");
-        }
-    }
 
-    static void FixSlideTitles(Presentation presentation)
+            Console.WriteLine($" Fixed section slide #{slide.SlideNumber}: {slideTexts.FirstOrDefault()}");
+        }
+
+		List<Shape> FindNonEmptyTextShapesByType(Slide slide, PpPlaceholderType placeholderType)
+		{
+            List<Shape> shapes = new List<Shape>();
+			foreach (Shape shape in slide.Shapes)
+			{
+				try
+				{
+					if (shape.HasTextFrame == MsoTriState.msoTrue
+						&& shape.PlaceholderFormat.Type == placeholderType
+						&& shape.TextFrame.TextRange.Text != "")
+					{
+                        shapes.Add(shape);
+					}
+				}
+				catch (Exception)
+				{
+					// Silently ignore --> the shape is not a placeholder
+				}
+			}
+
+            return shapes;
+		}
+	}
+
+	static void FixSlideTitles(Presentation presentation)
     {
         Console.WriteLine("Fixing incorrect slide titles...");
 
