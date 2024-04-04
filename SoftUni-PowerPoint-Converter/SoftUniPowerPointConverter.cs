@@ -151,7 +151,9 @@ public class SoftUniPowerPointConverter
         Console.WriteLine("Removing all sections and slides from the template...");
         while (presentation.SectionProperties.Count > 0)
             presentation.SectionProperties.Delete(1, true);
-    }
+		for (int i = presentation.Slides.Count; i > 0; i--)
+			presentation.Slides[i].Delete();
+	}
 
     static void CopySlidesAndSections(Presentation pptSource, Presentation pptDestination)
     {
@@ -660,21 +662,24 @@ public class SoftUniPowerPointConverter
         Console.WriteLine("Fixing slide notes pages...");
 
         Shape footerFromNotesMaster = FindNotesFooter();
-        footerFromNotesMaster.Copy();
-
-        for (int slideNum = 1; slideNum <= presentation.Slides.Count; slideNum++)
+        if (footerFromNotesMaster != null)
         {
-            Slide slide = presentation.Slides[slideNum];
-            if (slide.HasNotesPage == MsoTriState.msoTrue)
-            {
-                var slideNotesFooter = slide.NotesPage.Shapes.OfType<Shape>().Where(
-                    shape => shape.Type == MsoShapeType.msoPlaceholder
-                    && shape.PlaceholderFormat.Type == PpPlaceholderType.ppPlaceholderFooter)
-                    .FirstOrDefault();
-                if (slideNotesFooter != null)
-                    slideNotesFooter.Delete();
-                slide.NotesPage.Shapes.Paste();
-            }
-        }
+			footerFromNotesMaster.Copy();
+
+			for (int slideNum = 1; slideNum <= presentation.Slides.Count; slideNum++)
+			{
+				Slide slide = presentation.Slides[slideNum];
+				if (slide.HasNotesPage == MsoTriState.msoTrue)
+				{
+					var slideNotesFooter = slide.NotesPage.Shapes.OfType<Shape>().Where(
+						shape => shape.Type == MsoShapeType.msoPlaceholder
+						&& shape.PlaceholderFormat.Type == PpPlaceholderType.ppPlaceholderFooter)
+						.FirstOrDefault();
+					if (slideNotesFooter != null)
+						slideNotesFooter.Delete();
+					slide.NotesPage.Shapes.Paste();
+				}
+			}
+		}
     }
 }
