@@ -8,6 +8,7 @@ using SoftUniConverterCommon;
 using static SoftUniConverterCommon.ConverterUtils;
 using Shape = Microsoft.Office.Interop.PowerPoint.Shape;
 using System.Security.Policy;
+using System.Drawing;
 
 public class SoftUniPowerPointConverter
 {
@@ -76,6 +77,8 @@ public class SoftUniPowerPointConverter
             FixSlideNumbers(pptDestination);
 
             FixSlideNotesPages(pptDestination);
+
+            FixSlidePictureBorders(pptDestination);
 
             pptDestination.Save();
             if (!appWindowVisible)
@@ -681,5 +684,29 @@ public class SoftUniPowerPointConverter
 				}
 			}
 		}
+    }
+
+    static void FixSlidePictureBorders(Presentation presentation)
+    {
+        Console.WriteLine("Fixing picture borders...");
+
+        for (int i = 1; i <= presentation.Slides.Count; i++)
+        {
+            Slide currentSlide = presentation.Slides[i];
+            for (int shapeNum = 1; shapeNum <= currentSlide.Shapes.Count; shapeNum++)
+            {
+                Shape currentShape = currentSlide.Shapes[shapeNum];
+                if (currentShape.Type == MsoShapeType.msoPicture)
+                {
+                    currentShape.Line.Visible = MsoTriState.msoTrue;
+
+                    // Can't get theme colors and copying the old border is unreliable
+                    // so use hardcoded gray taken from the template
+                    currentShape.Line.ForeColor.RGB = ColorTranslator.ToOle(Color.FromArgb(162, 169, 184));
+                }
+            }
+
+            Console.WriteLine($"  Fixed the picute borders at slide #{i}");
+        }
     }
 }
