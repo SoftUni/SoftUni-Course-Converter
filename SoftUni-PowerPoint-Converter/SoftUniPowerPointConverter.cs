@@ -7,7 +7,7 @@ using Microsoft.Office.Core;
 using SoftUniConverterCommon;
 using static SoftUniConverterCommon.ConverterUtils;
 using Shape = Microsoft.Office.Interop.PowerPoint.Shape;
-using System.Security.Policy;
+using Application = Microsoft.Office.Interop.PowerPoint.Application;
 
 public class SoftUniPowerPointConverter
 {
@@ -246,27 +246,35 @@ public class SoftUniPowerPointConverter
         var layoutMappings = new Dictionary<string, string> {
             { "Presentation Title Slide", "Presentation Title Slide" },
             { "Section Title Slide", "Section Title Slide" },
-            { "Section Slide", "Section Title Slide" },
-            { "Title Slide", "Section Title Slide" },
+			{ "Section Slide", "Section Title Slide" },
+			{ "Section Title Slide with Image", "Section Title Slide with Image" },
+			{ "Title Slide", "Section Title Slide" },
             { "Заглавен слайд", "Section Title Slide" },
-            { "Demo Slide", "Demo Slide" },
-            { "Live Exercise Slide", "Section Title Slide" },
+			{ "Demo Slide", "Demo Slide" },
+			{ "Demo Slide Abstract", "Demo Slide Abstract" },
+			{ "Live Exercise Slide", "Section Title Slide" },
             { "Background Slide", "Section Title Slide" },
             { "Important Concept", "Important Concept" },
             { "Important Example", "Important Example" },
             { "Table of Content", "Table of Contents" },
             { "Table of Contents", "Table of Contents" },
-            { "Comparison Slide", "Comparison Slide" },
             { "Title and Content", "Title and Content" },
             { "Заглавие и съдържание", "Title and Content" },
             { "Source Code Example", "Source Code Example" },
             { "Image and Content", "Image and Content" },
-            { "Questions Slide", "Questions Slide" },
-            { "Blank Slide", "Blank Slide" },
-            { "Block scheme", "Blank Slide" },
-            { "About Slide", "About Slide" },
+			{ "Comparison Slide", "Comparison Slide" },
+			{ "Comparison Slide Dark", "Comparison Slide" },
+			{ "Full Screen Image Slide", "Full Screen Image Slide" },
+			{ "Summary Slide", "Summary Slide" },
+			{ "Questions Slide", "Questions Slide" },
+			{ "Blank Slide", "Blank Slide" },
+			{ "Block scheme", "Blank Slide" },
+			{ "Breaks Slide", "Breaks Slide" },
+            { "Break Slide", "Breaks Slide" },
+			{ "About Slide", "About Slide" },
             { "Last", "About Slide" },
-            { "Comparison Slide Dark", "Comparison Slide" },
+            { "Homework Slide", "Homework Slide" },
+            { "Additional Resources", "Additional Resources" },
             { "", "" },
         };
         // Add layout names like "1_Section Title Slide", "2_Demo Slide"
