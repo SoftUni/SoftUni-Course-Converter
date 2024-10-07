@@ -149,13 +149,13 @@ public class SoftUniPowerPointConverter
     static void RemoveAllSectionsAndSlides(Presentation presentation)
     {
         Console.WriteLine("Removing all sections and slides from the template...");
-        while (presentation.SectionProperties.Count > 0)
-            presentation.SectionProperties.Delete(1, true);
 		for (int i = presentation.Slides.Count; i > 0; i--)
 			presentation.Slides[i].Delete();
+		while (presentation.SectionProperties.Count > 0)
+			presentation.SectionProperties.Delete(1, false);
 	}
 
-    static void CopySlidesAndSections(Presentation pptSource, Presentation pptDestination)
+	static void CopySlidesAndSections(Presentation pptSource, Presentation pptDestination)
     {
         Console.WriteLine("Copying all slides and sections from the source presentation...");
 
@@ -277,6 +277,7 @@ public class SoftUniPowerPointConverter
             { "Additional Resources", "Additional Resources" },
             { "", "" },
         };
+
         // Add layout names like "1_Section Title Slide", "2_Demo Slide"
         foreach (string layoutName in layoutMappings.Keys.ToArray())
         {
@@ -285,7 +286,14 @@ public class SoftUniPowerPointConverter
                 layoutMappings["" + i + "_" + layoutName] = mappedName;
         }
 
-        const string defaultLayoutName = "Title and Content";
+		// Add UPPERCASE slide names
+		foreach (string layoutName in layoutMappings.Keys.ToArray())
+		{
+			var mappedName = layoutMappings[layoutName];
+			layoutMappings[layoutName.ToUpper()] = mappedName;
+		}
+
+		const string defaultLayoutName = "Title and Content";
 
         var customLayoutsByName = new Dictionary<string, CustomLayout>();
         foreach (CustomLayout layout in presentation.SlideMaster.CustomLayouts)
@@ -297,10 +305,11 @@ public class SoftUniPowerPointConverter
         {
             Slide slide = presentation.Slides[slideNum];
             string oldLayoutName = slide.CustomLayout.Name;
-            string newLayoutName = defaultLayoutName;
-            if (layoutMappings.ContainsKey(oldLayoutName))
-                newLayoutName = layoutMappings[oldLayoutName];
-            if (newLayoutName != oldLayoutName)
+			string oldLayoutNameUppercase = oldLayoutName.ToUpper();
+			string newLayoutName = defaultLayoutName;
+            if (layoutMappings.ContainsKey(oldLayoutNameUppercase))
+                newLayoutName = layoutMappings[oldLayoutNameUppercase];
+            if (newLayoutName.ToUpper() != oldLayoutNameUppercase)
             {
                 Console.WriteLine($"  Replacing invalid slide layout \"{oldLayoutName}\" on slide #{slideNum} with \"{newLayoutName}\"");
                 // Replace the old layout with the new layout
